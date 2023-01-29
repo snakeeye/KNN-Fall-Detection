@@ -202,11 +202,13 @@ with mp_pose.Pose(
             break
         if userInput == ord('y'):
             res_point[0] = 1
-            normal_points.append(res_point)
+            # print(res_point)
+            normal_points.append(res_point.copy())
 
         if userInput == ord('n'):
             res_point[0] = 0
-            fall_points.append(res_point)
+            # print(res_point)
+            fall_points.append(res_point.copy())
 
         res_point.clear()
 cap.release()
