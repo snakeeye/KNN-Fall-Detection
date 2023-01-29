@@ -112,7 +112,6 @@ keyXYZ = [
 ]
 print(len(keyXYZ))
 res_point = []
-print(len(keyPoint))
 cap = cv2.VideoCapture("Fall_Trim.mp4")
 with mp_pose.Pose(
         static_image_mode=True,
@@ -156,6 +155,6 @@ with mp_pose.Pose(
         cv2.putText(image, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 196, 255), 2)
         # cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
         cv2.imshow('MediaPipe Pose', image)
-        if cv2.waitKey(1) & 0xFF == 27:
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 cap.release()

@@ -4,6 +4,11 @@ import numpy as np
 import time
 import pandas as pd
 
+def dump_points(pointArray, fileName):
+    print(len(pointArray))
+    data = pd.DataFrame(data=pointArray, columns=keyXYZ, index=None)
+    data.to_csv(fileName, encoding='utf-8',index=False)
+
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -45,6 +50,7 @@ keyPoint = [
     "right_foot_index"
 ]
 keyXYZ = [
+    "class",
     "nose_x",
     "nose_y",
     "nose_z",
@@ -147,6 +153,8 @@ keyXYZ = [
 ]
 print(len(keyXYZ))
 res_point = []
+normal_points = []
+fall_points = []
 print(len(keyPoint))
 cap = cv2.VideoCapture("Fall_Trim.mp4")
 with mp_pose.Pose(
@@ -162,6 +170,7 @@ with mp_pose.Pose(
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         results = pose.process(image)
         if results.pose_landmarks:
+            res_point.append(1) # the class 0 mean fall, 1 means normal. Please ref the fall_point.csv
             for index, landmarks in enumerate(results.pose_landmarks.landmark):
                 # print(keyPoint[index], landmarks.x, landmarks.y, landmarks.z)
                 # print(len(results.pose_landmarks.landmark))
@@ -184,15 +193,22 @@ with mp_pose.Pose(
         cv2.putText(image, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_PLAIN, 3, (0, 196, 255), 2)
         # cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
         cv2.imshow('MediaPipe Pose', image)
-        if cv2.waitKey(0) & 0xFF == 27:
-            shape1 = int(len(res_point) / len(keyXYZ))
-            print(shape1)
-            print(res_point)
-            print(len(res_point))
-            res_point = np.array(res_point).reshape(shape1, len(keyXYZ))
-            print(res_point)
-            print(res_point.shape)
-            data = pd.DataFrame(data=res_point, columns=keyXYZ, index=None)
-            data.to_csv("fall_point.csv", encoding='utf-8')
+
+        userInput = cv2.waitKey(0) & 0xFF
+        if  userInput == ord('q'):
+            dump_points(normal_points, "normal_point.csv")
+            dump_points(fall_points, "fall_point.csv")
+
             break
+        if userInput == ord('y'):
+            res_point[0] = 1
+            normal_points.append(res_point)
+
+        if userInput == ord('n'):
+            res_point[0] = 0
+            fall_points.append(res_point)
+
+        res_point.clear()
 cap.release()
+
+
